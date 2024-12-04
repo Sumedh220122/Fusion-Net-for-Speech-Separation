@@ -1,1 +1,14 @@
+The following folder contains the Models for source separation tasks
 
+1. Waveformer.py
+   The following folder contains the model configuration for the Waveformer model that is designed for background source separation.
+
+2. Sepformer_2spk.py
+   The following folder contains the model configuration for the Sepformer Model designed for 2-Speaker separation 
+
+3. Sepformer_3spk.py
+   The following folder contains the model configuration for the Sepformer Model designed for 3-Speaker separation 
+
+4. Noise_reduction.py
+   The following file contains the model that is designed to perform adaptive-spectral subtraction followed by an optional
+   noise-reduction via short-term-fourier-transform.
