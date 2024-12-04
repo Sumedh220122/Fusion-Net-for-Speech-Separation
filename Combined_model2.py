@@ -38,11 +38,11 @@ sepformer = sep()
 nr = Background_Reduction()
 
 waveformer.load_state_dict(
-    torch.load(checkpoints_path + '', map_location=torch.device('cpu'))['model_state_dict'])
+    torch.load(checkpoints_path + '', map_location=torch.device('cpu'))['model_state_dict']) # Train the model on your dataset and add the Checkpoints files this way
 waveformer.eval()
 
 sepformer.load_state_dict(
-        torch.load(checkpoints_path + '', map_location=torch.device('cpu'))['model_state_dict'])
+        torch.load(checkpoints_path + '', map_location=torch.device('cpu'))['model_state_dict']) # Train the model on your dataset and add the Checkpoints files this way
 sepformer.eval()
 
 resampler = torchaudio.transforms.Resample(orig_freq = 44100, new_freq = 8000)
