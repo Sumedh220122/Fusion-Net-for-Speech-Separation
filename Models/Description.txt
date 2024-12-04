@@ -12,3 +12,8 @@ The following folder contains the Models for source separation tasks
 4. Noise_reduction.py
    The following file contains the model that is designed to perform adaptive-spectral subtraction followed by an optional
    noise-reduction via short-term-fourier-transform.
+
+5. Func_optimizer.py
+   The file contains code to train a custom linear regression model that is capable of estimating the optimal parameter
+   alpha for adaptive spectral subtraction.   
+         alpha = (Signal_with_mix) = (Signal_with_mix_with_background) - alpha * (background)
