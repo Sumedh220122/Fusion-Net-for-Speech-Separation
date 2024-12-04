@@ -30,9 +30,9 @@ def get_files(directory):
 
     return files
   
-files1 = get_files('/kaggle/input/people-fsd/Mixed2/Mixed2')  # Add your dataset path here
-files2 = get_files('/kaggle/input/people-fsd/Mixed3/Mixed3')  # Add your dataset path here
-files3 = get_files('/kaggle/input/people-fsd/ground_truth/ground_truth') # Add your dataset path here
+files1 = get_files('/kaggle/input/people-fsd/Mixed2/Mixed2')  # Add your dataset path here (Containing mixture of Target speakers + background)
+files2 = get_files('/kaggle/input/people-fsd/Mixed3/Mixed3')  # Add your dataset path here (Containing mixture of Target speakers)
+files3 = get_files('/kaggle/input/people-fsd/ground_truth/ground_truth') # Add your dataset path here (Containing Backgrounds)
 
 def gradient_descent(mixed_stft, bg_stft, clean_stft, alpha_init=1.0, lr=0.01, epochs=100):
     alpha = torch.tensor(alpha_init, dtype=torch.float32, requires_grad=True)
