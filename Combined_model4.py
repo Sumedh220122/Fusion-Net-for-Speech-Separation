@@ -62,18 +62,18 @@ def combined_model(audio, label_choices, num_spk):
         
         output = output / torch.max(torch.abs(output))
 
-        torchaudio.save(f'output_audio_{i}.wav', output.squeeze(0).detach().cpu(), 44100)
+        torchaudio.save(f'Predictions/output_audio_{i}.wav', output.squeeze(0).detach().cpu(), 44100)
         i = i + 1
 
     for i in range(2):
-        enhanced_signal = nr.spectral_subtraction(audio, f'output_audio_{i}.wav', 'Predictions', i)
+        enhanced_signal = nr.spectral_subtraction(audio, f'Predictions/output_audio_{i}.wav', 'Predictions', i)
         audio = 'Predictions/enhanced.wav'
     
     human_mix, _ = torchaudio.load('Predictions/enhanced.wav')
 
     human_mix = resampler(human_mix)
 
-    outputs = ['output_audio_0.wav', 'output_audio_1.wav']
+    outputs = ['Predictions/output_audio_0.wav', 'Predictions/output_audio_1.wav']
     
     est_sources = sepformer(human_mix)
 
@@ -81,10 +81,10 @@ def combined_model(audio, label_choices, num_spk):
     est_sources[1, :, :] = est_sources[1, :, :] / torch.max(torch.abs(est_sources[1, :, :]))
     est_sources[2, :, :] = est_sources[2, :, :] / torch.max(torch.abs(est_sources[2, :, :]))
 
-    torchaudio.save('spk1.wav', est_sources[0, :, :].detach().cpu(), 8000)
-    torchaudio.save('spk2.wav', est_sources[1, :, :].detach().cpu(), 8000)
-    torchaudio.save('spk3.wav', est_sources[2, :, :].detach().cpu(), 8000)
-    outputs.extend(['spk1.wav', 'spk2.wav', 'spk3.wav'])
+    torchaudio.save('Predictions/spk1.wav', est_sources[0, :, :].detach().cpu(), 8000)
+    torchaudio.save('Predictions/spk2.wav', est_sources[1, :, :].detach().cpu(), 8000)
+    torchaudio.save('Predictions/spk3.wav', est_sources[2, :, :].detach().cpu(), 8000)
+    outputs.extend(['Predictions/spk1.wav', 'Predictions/spk2.wav', 'Predictions/spk3.wav'])
 
     return outputs
 
