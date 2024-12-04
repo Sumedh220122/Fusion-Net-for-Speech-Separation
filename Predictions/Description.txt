@@ -1,1 +1,1 @@
-
+The following folder is used to store the predictions made by the model during runtime
