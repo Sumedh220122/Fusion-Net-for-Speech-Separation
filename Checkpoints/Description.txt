@@ -1,1 +1,1 @@
-
+The following folder is supposed to contain the checkpoint files for the three models present in the model folder
