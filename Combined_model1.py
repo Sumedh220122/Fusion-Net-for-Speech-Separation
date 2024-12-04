@@ -65,13 +65,13 @@ def combined_model(audio, label_choices, num_spk):
 
     torchaudio.save('Predictions/output_audio.wav', output.squeeze(0).detach().cpu(), 44100)
 
-    enhanced_signal = nr.spectral_subtraction(audio, 'output_audio.wav', 'Predictions', 0)
+    enhanced_signal = nr.spectral_subtraction(audio, 'Predictions/output_audio.wav', 'Predictions', 0)
     
     human_mix, _ = torchaudio.load('Predictions/enhanced.wav')
 
     human_mix = resampler(human_mix)
 
-    outputs = ['output_audio.wav']
+    outputs = ['Predictions/output_audio.wav']
 
     est_sources = sepformer1(human_mix)
 
