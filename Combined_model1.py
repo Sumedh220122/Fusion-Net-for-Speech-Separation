@@ -34,7 +34,7 @@ waveformer = Wave(label_len = 42, device = None, L=32,
                  dec_chunk_size=13, out_buf_len=4,
                  use_pos_enc=True, skip_connection=True, proj=True, lookahead=True)
 
-sepformer1 = sep1()
+sepformer1 = sep()
 #sepformer2 = sep2()
 nr = Background_Reduction()
 
