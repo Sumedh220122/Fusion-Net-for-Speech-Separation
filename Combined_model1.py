@@ -63,7 +63,7 @@ def combined_model(audio, label_choices, num_spk):
     
     output = output / torch.max(torch.abs(output))
 
-    torchaudio.save('output_audio.wav', output.squeeze(0).detach().cpu(), 44100)
+    torchaudio.save('Predictions/output_audio.wav', output.squeeze(0).detach().cpu(), 44100)
 
     enhanced_signal = nr.spectral_subtraction(audio, 'output_audio.wav', 'Predictions', 0)
     
@@ -78,9 +78,9 @@ def combined_model(audio, label_choices, num_spk):
     est_sources[0, :, :] = est_sources[0, :, :] / torch.max(torch.abs(est_sources[0, :, :]))
     est_sources[1, :, :] = est_sources[1, :, :] / torch.max(torch.abs(est_sources[1, :, :]))
 
-    torchaudio.save('spk1.wav', est_sources[0, :, :].detach().cpu(), 8000)
-    torchaudio.save('spk2.wav', est_sources[1, :, :].detach().cpu(), 8000)
-    outputs.extend(['spk1.wav', 'spk2.wav'])
+    torchaudio.save('Predictions/spk1.wav', est_sources[0, :, :].detach().cpu(), 8000)
+    torchaudio.save('Predictions/spk2.wav', est_sources[1, :, :].detach().cpu(), 8000)
+    outputs.extend(['Predictions/spk1.wav', 'Predictions/spk2.wav'])
     
     return outputs
 
