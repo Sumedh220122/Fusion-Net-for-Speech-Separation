@@ -5,8 +5,8 @@ The following repository presents a Deep Learning Model that follows a novel app
 # Usage
 
 1. Each of the folders contain a file description.txt that provides an overview of the contents stored in the folder. Read through each before proceeding further
-2. The four files Combined_model 1-4 are used for speech separation in various scenarios
-   a. Combined_model1.py - used to separate a mixture of 2 speakers in the foreground and one noise from the background
+2. The four files Combined_model 1-4 are used for speech separation in various scenarios \n
+   a. Combined_model1.py - used to separate a mixture of 2 speakers in the foreground and one noise from the background \n
    b. Combined_model2.py - used to separate a mixture of 3 speakers in the foreground and one noise from the background
    c. Combined_model3.py - used to separate a mixture of 2 speakers in the foreground and two noises from the background
    d. Combined_model4.py - used to separate a mixture of 3 speakers in the foreground and two noises from the background
