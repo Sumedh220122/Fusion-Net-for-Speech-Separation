@@ -11,7 +11,7 @@ The following repository presents a Deep Learning Model that follows a novel app
    c. Combined_model3.py - used to separate a mixture of 2 speakers in the foreground and two noises from the background
    d. Combined_model4.py - used to separate a mixture of 3 speakers in the foreground and two noises from the background
 
-The Checkpoints folder is empty and a kaggle link to the checkpoints for all 4 models will be updated here
+The Checkpoints folder is empty and a link to the checkpoints for all 4 models will soon be provided here
 
 To run:
   ```
