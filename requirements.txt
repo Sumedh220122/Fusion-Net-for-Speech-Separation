@@ -1,0 +1,11 @@
+numpy
+librosa
+matplotlib
+soundfile
+torch
+torchaudio
+scipy
+speechbrain
+torchmetrics
+gradio
+pydub
