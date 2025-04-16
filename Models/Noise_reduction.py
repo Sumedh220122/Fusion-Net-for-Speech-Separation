@@ -15,6 +15,7 @@ class Background_Reduction:
         self.regressor = joblib.load("Checkpoints/alpha_estimator.pkl")
 
     def reduction(self, input_audio, background_audio):
+        """Function to reduce the background noise from the input audio via time frequency masking"""
         mixture, sr = librosa.load(input_audio , sr=None)
         background, _ = librosa.load(background_audio)
 
@@ -42,12 +43,14 @@ class Background_Reduction:
         return enhanced_signal
     
     def compute_snr(self, signal, noise):
+        """Function to compute the signal to noise ratio"""
         signal_power = torch.mean(signal**2)
         noise_power = torch.mean(noise**2)
         return 10 * torch.log10(signal_power / (noise_power + 1e-6))  # SNR in dB
 
     
     def spectral_subtraction(self, mixture, background, target_folder, i):
+        """Function to perform spectral subtraction"""
         mixture_path = mixture
         background_path = background
 

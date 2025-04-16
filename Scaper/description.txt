@@ -1,0 +1,9 @@
+The following folder contains sample code used to generate the audio files using the Scaper library.
+
+The code is used to generate the audio files for the following scenarios:
+1. 2 speakers mixtures
+2. 3 speakers mixtures
+3. 2 speakers mixtures with 1 background noise
+4. 3 speakers mixtures with 2 background noises
+
+

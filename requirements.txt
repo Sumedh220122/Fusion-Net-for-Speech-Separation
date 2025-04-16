@@ -1,11 +1,25 @@
+# Core numerical and scientific computing
 numpy
+scipy
+
+# Audio processing
 librosa
-matplotlib
 soundfile
+pydub
+
+# Deep Learning
 torch
 torchaudio
-scipy
 speechbrain
 torchmetrics
+
+# Visualization
+matplotlib
+
+# Web Interface
 gradio
-pydub
+
+# Optional dependencies
+tensorboard  # for training visualization
+tqdm  # for progress bars
+pandas  # for data handling

@@ -87,21 +87,18 @@ class DilatedCausalConvEncoder(nn.Module):
             device=device)
 
     def forward(self, x, ctx_buf):
-        T = x.shape[-1] # Sequence length
+        T = x.shape[-1]
 
         for i in range(self.num_layers):
             buf_start_idx = self.buf_indices[i]
             buf_end_idx = self.buf_indices[i] + self.buf_lengths[i]
 
-            # DCC input: concatenation of current output and context
             dcc_in = torch.cat(
                 (ctx_buf[..., buf_start_idx:buf_end_idx], x), dim=-1)
 
-            # Push current output to the context buffer
             ctx_buf[..., buf_start_idx:buf_end_idx] = \
                 dcc_in[..., -self.buf_lengths[i]:]
 
-            # Residual connection
             x = x + self.dcc_layers[i](dcc_in)
 
         return x, ctx_buf
@@ -115,30 +112,27 @@ class CausalTransformerDecoderLayer(torch.nn.TransformerDecoderLayer):
     ) -> Tensor:
         tgt_last_tok = tgt[:, -chunk_size:, :]
 
-        # self attention part
         tmp_tgt, sa_map = self.self_attn(
             tgt_last_tok,
             tgt,
             tgt,
-            attn_mask=None,  # not needed because we only care about the last token
+            attn_mask=None,
             key_padding_mask=None,
         )
         tgt_last_tok = tgt_last_tok + self.dropout1(tmp_tgt)
         tgt_last_tok = self.norm1(tgt_last_tok)
 
-        # encoder-decoder attention
         if memory is not None:
             tmp_tgt, ca_map = self.multihead_attn(
                 tgt_last_tok,
                 memory,
                 memory,
-                attn_mask=None, # Attend to the entire chunk
+                attn_mask=None,
                 key_padding_mask=None,
             )
             tgt_last_tok = tgt_last_tok + self.dropout2(tmp_tgt)
             tgt_last_tok = self.norm2(tgt_last_tok)
 
-        # final feed-forward network
         tmp_tgt = self.linear2(
             self.dropout(self.activation(self.linear1(tgt_last_tok)))
         )
@@ -179,8 +173,8 @@ class CausalTransformerDecoder(nn.Module):
             [B * L, ctx_len + 1, C]
         """
         B, T, C = x.shape
-        x = x.permute(0, 2, 1) # [B, C, ctx_len + L]
-        x = self.unfold(x.unsqueeze(-1)) # [B, C * (ctx_len + chunk_size), -1]
+        x = x.permute(0, 2, 1)
+        x = self.unfold(x.unsqueeze(-1))
         x = x.permute(0, 2, 1)
         x = x.reshape(B, -1, C, self.ctx_len + self.chunk_size)
         x = x.reshape(-1, C, self.ctx_len + self.chunk_size)
@@ -196,30 +190,23 @@ class CausalTransformerDecoder(nn.Module):
         mem, _ = mod_pad(mem, self.chunk_size, (0, 0))
         tgt, mod = mod_pad(tgt, self.chunk_size, (0, 0))
 
-        # Input sequence length
         B, C, T = tgt.shape
 
         tgt = tgt.permute(0, 2, 1)
         mem = mem.permute(0, 2, 1)
 
-        # Prepend mem with the context
         mem = torch.cat((ctx_buf[:, 0, :, :], mem), dim=1)
         ctx_buf[:, 0, :, :] = mem[:, -self.ctx_len:, :]
         mem_ctx = self._causal_unfold(mem)
         if self.use_pos_enc:
             mem_ctx = mem_ctx + self.pos_enc(mem_ctx)
 
-        # Attention chunk size: required to ensure the model
-        # wouldn't trigger an out-of-memory error when working
-        # on long sequences.
         K = 1000
 
         for i, tf_dec_layer in enumerate(self.tf_dec_layers):
-            # Update the tgt with context
             tgt = torch.cat((ctx_buf[:, i + 1, :, :], tgt), dim=1)
             ctx_buf[:, i + 1, :, :] = tgt[:, -self.ctx_len:, :]
 
-            # Compute encoded output
             tgt_ctx = self._causal_unfold(tgt)
             if self.use_pos_enc and i == 0:
                 tgt_ctx = tgt_ctx + self.pos_enc(tgt_ctx)
@@ -243,11 +230,9 @@ class MaskNet(nn.Module):
         self.skip_connection = skip_connection
         self.proj = proj
 
-        # Encoder based on dilated causal convolutions.
         self.encoder = DilatedCausalConvEncoder(channels=enc_dim,
                                                 num_layers=num_enc_layers)
 
-        # Project between encoder and decoder dimensions
         self.proj_e2d_e = nn.Sequential(
             nn.Conv1d(enc_dim, dec_dim, kernel_size=1, stride=1, padding=0,
                       groups=dec_dim),
@@ -261,8 +246,6 @@ class MaskNet(nn.Module):
                       groups=dec_dim),
             nn.ReLU())
         
-        # Transformer decoder that operates on chunks of size
-        # buffer size.
         self.decoder = CausalTransformerDecoder(
             model_dim=dec_dim, ctx_len=dec_buf_len, chunk_size=dec_chunk_size,
             num_layers=num_dec_layers, nhead=8, use_pos_enc=use_pos_enc,
@@ -281,27 +264,20 @@ class MaskNet(nn.Module):
             ctx_buf: {[B, C, <receptive field of the layer>], ...}
                 List of context buffers maintained by DCC encoder
         """
-        # Enocder the label integrated input
         e, enc_buf = self.encoder(x, enc_buf)
-
-        # Label integration
+    
         l = l.unsqueeze(2) * e
 
-        # Project to `dec_dim` dimensions
         if self.proj:
             e = self.proj_e2d_e(e)
             m = self.proj_e2d_l(l)
-            # Cross-attention to predict the mask
             m, dec_buf = self.decoder(m, e, dec_buf)
         else:
-            # Cross-attention to predict the mask
             m, dec_buf = self.decoder(l, e, dec_buf)
-
-        # Project mask to encoder dimensions
+        
         if self.proj:
             m = self.proj_d2e(m)
         
-        # Final mask after residual connection
         if self.skip_connection:
             m = l + m
         
@@ -322,7 +298,6 @@ class Net(nn.Module):
         self.lookahead = lookahead
         self.device = device
 
-        # Input conv to convert input audio to a latent representation
         kernel_size = 3 * L if lookahead else L
         self.in_conv = nn.Sequential(
             nn.Conv1d(in_channels=1,
@@ -330,7 +305,6 @@ class Net(nn.Module):
                       padding=0, bias=False),
             nn.ReLU())
 
-        # Label embedding layer
         self.label_embedding = nn.Sequential(
             nn.Linear(label_len, 512),
             nn.LayerNorm(512),
@@ -344,14 +318,12 @@ class Net(nn.Module):
             nn.Linear(512, label_len),
         )
 
-        # Mask generator
         self.mask_gen = MaskNet(
             enc_dim=enc_dim, num_enc_layers=num_enc_layers,
             dec_dim=dec_dim, dec_buf_len=dec_buf_len,
             dec_chunk_size=dec_chunk_size, num_dec_layers=num_dec_layers,
             use_pos_enc=use_pos_enc, skip_connection=skip_connection, proj=proj)
 
-        # Output conv layer
         self.out_conv = nn.Sequential(
             nn.ConvTranspose1d(
                 in_channels=enc_dim, out_channels=1,
@@ -389,24 +361,18 @@ class Net(nn.Module):
             enc_buf, dec_buf, out_buf = \
                 init_enc_buf, init_dec_buf, init_out_buf
 
-        # Generate latent space representation of the input
         x = self.in_conv(x)
 
-        # Generate label embedding
         l = self.label_embedding(label) # [B, label_len] --> [B, channels]
 
-        # Generate mask corresponding to the label
         m, l, enc_buf, dec_buf = self.mask_gen(x, l, enc_buf, dec_buf)
         
-#         labels =  self.proj_l(l)
 
-        # Apply mask and decode
         x = x * m
         x = torch.cat((out_buf, x), dim=-1)
         out_buf = x[..., -self.out_buf_len:]
         x = self.out_conv(x)
 
-        # Remove mod padding, if present.
         if mod != 0:
             x = x[:, :, :-mod]
 

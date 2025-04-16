@@ -24,16 +24,12 @@ def get_files(directory):
                 full_path = full_path.replace("\\", "/")
                 files.append(full_path)
     
-    print(len(files))
+    print("Total number of files: ", len(files))
         
     files = sorted(files, key = lambda x : int(os.path.basename(x).split('_')[1].split('.')[0]))
 
     return files
   
-files1 = get_files('/kaggle/input/people-fsd/Mixed2/Mixed2')  # Add your dataset path here (Containing mixture of Target speakers + background)
-files2 = get_files('/kaggle/input/people-fsd/Mixed3/Mixed3')  # Add your dataset path here (Containing mixture of Target speakers)
-files3 = get_files('/kaggle/input/people-fsd/ground_truth/ground_truth') # Add your dataset path here (Containing Backgrounds)
-
 def gradient_descent(mixed_stft, bg_stft, clean_stft, alpha_init=1.0, lr=0.01, epochs=100):
     alpha = torch.tensor(alpha_init, dtype=torch.float32, requires_grad=True)
 
@@ -64,7 +60,7 @@ def gradient_descent(mixed_stft, bg_stft, clean_stft, alpha_init=1.0, lr=0.01, e
     return alpha
 
 # Example function to generate training data
-def generate_training_data(num_samples):
+def generate_training_data(num_samples, files1, files2, files3):
     alphas = []
     features = []
     
@@ -78,7 +74,7 @@ def generate_training_data(num_samples):
         bg_signal = bg_signal.to(device)
         clean_signal = clean_signal.to(device)
         
-        # Compute STFTs
+        # Compute STFTs 
         n_fft = 1024
         hop_length = 512
         mixed_stft = torch.stft(mixed_signal, n_fft=n_fft, hop_length=hop_length, return_complex=True)
@@ -101,15 +97,23 @@ def generate_training_data(num_samples):
     
     return np.array(features), np.array(alphas)
 
-# Generate dataset
-features, alphas = generate_training_data()
 
-X_train, X_test, y_train, y_test = train_test_split(features, alphas, test_size=0.2, random_state=42)
+if __name__ == "__main__":
 
-# Train a regression model
-regressor = LinearRegression()
-regressor.fit(X_train, y_train)
+    target_bg_files = get_files('')  # Add your dataset path here (Containing mixture of Target speakers + background)
+    target_files = get_files('')  # Add your dataset path here (Containing mixture of Target speakers)
+    bg_files = get_files('') # Add your dataset path here (Containing Backgrounds)
 
-# Save the model
-joblib.dump(regressor, "alpha_estimator.pkl")
+    # Generate dataset
+    features, alphas = generate_training_data(num_samples = len(target_bg_files), files1 = target_bg_files, files2 = target_files, files3 = bg_files)
+
+    # Split the data into training and testing sets
+    X_train, X_test, y_train, y_test = train_test_split(features, alphas, test_size=0.2, random_state=42)
+
+    # Train a regression model
+    regressor = LinearRegression()
+    regressor.fit(X_train, y_train)
+
+    # Save the model
+    joblib.dump(regressor, "alpha_estimator.pkl")
 

@@ -1,0 +1,8 @@
+The following folder contains the code used to train the model.
+
+The code is used to train the following models:
+1. Waveformer
+2. Sepformer with 2 speakers mixtures
+3. Sepformer with 3 speakers mixtures
+
+

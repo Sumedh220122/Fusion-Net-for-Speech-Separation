@@ -5,15 +5,15 @@ The following repository presents a Deep Learning Model that follows a novel app
 # Usage
 
 1. Each of the folders contain a file description.txt that provides an overview of the contents stored in the folder. Read through each before proceeding further
-2. The four files Combined_model 1-4 are used for speech separation in various scenarios <br/>
-   a. Combined_model1.py - used to separate a mixture of 2 speakers in the foreground and one noise from the background <br/>
-   b. Combined_model2.py - used to separate a mixture of 3 speakers in the foreground and one noise from the background <br/>
-   c. Combined_model3.py - used to separate a mixture of 2 speakers in the foreground and two noises from the background <br/>
-   d. Combined_model4.py - used to separate a mixture of 3 speakers in the foreground and two noises from the background <br/>
+2. The four files FusionNet 1-4 are used for speech separation in various scenarios <br/>
+   a. FusionNet1.py - used to separate a mixture of 2 speakers in the foreground and one noise from the background <br/>
+   b. FusionNet2.py - used to separate a mixture of 3 speakers in the foreground and one noise from the background <br/>
+   c. FusionNet3.py - used to separate a mixture of 2 speakers in the foreground and two noises from the background <br/>
+   d. FusionNet4.py - used to separate a mixture of 3 speakers in the foreground and two noises from the background <br/>
 
 The Checkpoints folder is empty and a link to the checkpoints for all 4 models will soon be provided here
 
 To run:
   ```
-    python -W ignore Combined_model(the exact model you are using).py
+    python -W ignore FusionNet(the exact model you are using).py
   ```
