@@ -95,7 +95,7 @@ class Background_Reduction:
 
             cleaned_waveform = torch.nn.functional.pad(cleaned_waveform, (0, noise_waveform.shape[1] - cleaned_waveform.shape[1]))
 
-            output_path = os.path.join(target_folder, f'enhanced.wav')
+            output_path = os.path.join(target_folder, f'enhanced_{i}.wav')
             torchaudio.save(output_path, cleaned_waveform, 44100)
 
             mixture_path = output_path
