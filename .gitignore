@@ -1,0 +1,15 @@
+.venv
+__pycache__
+*.pyc
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.pth
+*.pt
+*.pt.gz
+*.pt.tar
+*.pt.tar.gz
+*.pt.tar.gz.part
+*.pt.tar.gz.part.1
+*.pem

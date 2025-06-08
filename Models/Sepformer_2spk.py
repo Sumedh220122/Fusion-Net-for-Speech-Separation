@@ -49,7 +49,7 @@ class Net(nn.Module):
                     kernel_size = 16,
                     in_channels = 256,
                     out_channels = 1,
-                    stride = 8,
+                    stride = 8                
                 )
     
     def forward(self, x):

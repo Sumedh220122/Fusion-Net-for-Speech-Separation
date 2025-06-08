@@ -15,7 +15,7 @@ from torchmetrics.audio import ScaleInvariantSignalDistortionRatio
 from speechbrain.inference.separation import SepformerSeparation as separator
 import librosa
 
-from Noise_reduction import Background_Reduction
+from Models.Noise_reduction import Background_Reduction
 
 TARGETS = ["Acoustic_guitar", "Applause", "Bark", "Bass_drum", "Burping_or_eructation", "Bus",
     "Cello", "Chime", "Clarinet", "Computer_keyboard", "Cough", "Cowbell", "Double_bass",
@@ -40,11 +40,11 @@ class FusionNet:
 
     def load_state_dict(self):
         self.waveformer.load_state_dict(
-            torch.load(self.checkpoints_path + '', map_location=torch.device('cpu'))['model_state_dict'])
+            torch.load(self.checkpoints_path + 'checkpoint_wave_2spk1bg.pth', map_location=torch.device('cpu'))['model_state_dict'])
         self.waveformer.eval()
 
         self.sepformer.load_state_dict(
-            torch.load(self.checkpoints_path + '', map_location=torch.device('cpu'))['model_state_dict'])
+            torch.load(self.checkpoints_path + 'checkpoint_sepformer_3spk_100.pth', map_location=torch.device('cpu'))['model_state_dict'])
         self.sepformer.eval()
 
     def separate_audio(self, audio, label_choices, num_spk):
@@ -75,21 +75,6 @@ class FusionNet:
             outputs.append(f'Predictions/spk{i+1}.wav')
 
         return outputs
-
-if __name__ == "__main__":
-    model = FusionNet()
-    model.load_state_dict()
-
-    input_audio = gr.Audio(label="Input audio", type = "filepath")
-    label_checkbox = gr.CheckboxGroup(choices=TARGETS, label="Input target selection(s)")
-    search_bar = gr.Textbox(label="Search (Enter the number of speakers)", placeholder="Enter a number")
-
-    outputs = [gr.Audio(label=f"Audio {i + 1}") for i in range(4)]
-
-    demo = gr.Interface(fn=model.separate_audio, inputs=[input_audio, label_checkbox, search_bar],
-                        outputs = outputs)
-
-    demo.launch(show_error=True)
 
 
 
